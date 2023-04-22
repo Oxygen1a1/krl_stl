@@ -91,8 +91,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="allocator.cpp" />
+    <ClCompile Include="base.cpp" />
+    <ClCompile Include="drv_main.cpp" />
     <ClCompile Include="list.cpp" />
-    <ClCompile Include="vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="allocator.h" />
