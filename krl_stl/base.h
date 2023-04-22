@@ -1,7 +1,8 @@
 #pragma once
 #include <ntifs.h>
-#include <ntddk.h>
+#include <wdm.h>
 #include <intrin.h>
+
 
 using u64 = unsigned long long;
 using u32 = unsigned long;

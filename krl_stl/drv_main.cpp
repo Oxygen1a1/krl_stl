@@ -1,6 +1,8 @@
 #include "base.h"
 #include "./vector.h"
 #include "string.h"
+#include "wstring.h"
+#include <wdm.h>
 
 auto unload(PDRIVER_OBJECT) -> void {
 
@@ -12,16 +14,28 @@ auto unload(PDRIVER_OBJECT) -> void {
 
 EXTERN_C auto DriverEntry(PDRIVER_OBJECT drv, PUNICODE_STRING)->NTSTATUS {
 
+	//test wstring
 	drv->DriverUnload = unload;
 
-	auto s = krl_std::string();
-	auto s1 = krl_std::string("hahahahha!");
-	auto s2 = krl_std::string(s1);
-	auto s3 = krl_std::string(10, 'c');
+	auto s8 = krl_std::wstring(L"NtOpenProcess");
+	auto s9 = krl_std::wstring(L"ntoskrnl.exe");
+
+	UNICODE_STRING _s1;
+	UNICODE_STRING _s2;
+	RtlInitUnicodeString(&_s1, s8.c_str());
+	RtlInitUnicodeString(&_s2, s9.c_str());
+
+	auto p = MmGetSystemRoutineAddress(&_s1);
+
+	DbgPrintEx(77, 0, "[+]p=%p\r\n",p);
+	auto s = krl_std::wstring();
+	auto s1 = krl_std::wstring(L"hahahahha!");
+	auto s2 = krl_std::wstring(s1);
+	auto s3 = krl_std::wstring(10, 'c');
 
 	auto s4 = s + s1;
 	auto s5 = s2 + s3;
-	//test string
+	//test wstring
 	DbgPrintEx(77, 0, "s.size() : %d\r\n", s.length());
 	DbgPrintEx(77, 0, "s1.size() : %d\r\n", s1.length());
 	DbgPrintEx(77, 0, "s2.size() : %d\r\n", s2.length());
@@ -38,11 +52,11 @@ EXTERN_C auto DriverEntry(PDRIVER_OBJECT drv, PUNICODE_STRING)->NTSTATUS {
 	if (s1 != s2) DbgPrintEx(77, 0, "s1!=s2\r\n");
 
 	//print test
-	DbgPrintEx(77, 0, "%s\r\n", s.c_str());
-	DbgPrintEx(77, 0, "%s\r\n", s1.c_str());
-	DbgPrintEx(77, 0, "%s\r\n", s2.c_str());
-	DbgPrintEx(77, 0, "%s\r\n", s3.c_str());
-	DbgPrintEx(77, 0, "%s\r\n", s4.c_str());
+	DbgPrintEx(77, 0, "%ws\r\n", s.c_str());
+	DbgPrintEx(77, 0, "%ws\r\n", s1.c_str());
+	DbgPrintEx(77, 0, "%ws\r\n", s2.c_str());
+	DbgPrintEx(77, 0, "%ws\r\n", s3.c_str());
+	DbgPrintEx(77, 0, "%ws\r\n", s4.c_str());
 
 	//index test
 
@@ -50,10 +64,55 @@ EXTERN_C auto DriverEntry(PDRIVER_OBJECT drv, PUNICODE_STRING)->NTSTATUS {
 
 
 	//sub str and find
-	auto s6 = krl_std::string("woshigou");
-	if (s6 == "woshigou") DbgPrintEx(77, 0, "[+]woshigou\r\n");
+	auto s6 = krl_std::wstring(L"woshigou");
+	if (s6 == L"woshigou") DbgPrintEx(77, 0, "[+]woshigou\r\n");
 
-	DbgPrintEx(77, 0, "s6.substr(2,4)=%s\r\n", s6.substr(s6.find("shi"), 4).c_str());
+	DbgPrintEx(77, 0, "s6.substr(2,4)=%ws\r\n", s6.substr(s6.find(L"shi"), 4).c_str());
+
+
+
+	//drv->DriverUnload = unload;
+
+	//auto s = krl_std::string();
+	//auto s1 = krl_std::string("hahahahha!");
+	//auto s2 = krl_std::string(s1);
+	//auto s3 = krl_std::string(10, 'c');
+
+	//auto s4 = s + s1;
+	//auto s5 = s2 + s3;
+	////test string
+	//DbgPrintEx(77, 0, "s.size() : %d\r\n", s.length());
+	//DbgPrintEx(77, 0, "s1.size() : %d\r\n", s1.length());
+	//DbgPrintEx(77, 0, "s2.size() : %d\r\n", s2.length());
+	//DbgPrintEx(77, 0, "s3.size() : %d\r\n", s3.length());
+	//DbgPrintEx(77, 0, "s4.size() : %d\r\n", s4.length());
+	//DbgPrintEx(77, 0, "s5.size() : %d\r\n", s5.length());
+
+
+
+
+	//s1 += s3;
+	//DbgPrintEx(77, 0, "new s1.size() : %d\r\n", s1.length());
+
+	//if (s1 != s2) DbgPrintEx(77, 0, "s1!=s2\r\n");
+
+	////print test
+	//DbgPrintEx(77, 0, "%s\r\n", s.c_str());
+	//DbgPrintEx(77, 0, "%s\r\n", s1.c_str());
+	//DbgPrintEx(77, 0, "%s\r\n", s2.c_str());
+	//DbgPrintEx(77, 0, "%s\r\n", s3.c_str());
+	//DbgPrintEx(77, 0, "%s\r\n", s4.c_str());
+
+	////index test
+
+	//DbgPrintEx(77, 0, "s1[3]=%c\r\n", s1[3]);
+
+
+	////sub str and find
+	//auto s6 = krl_std::string("woshigou");
+	//if (s6 == "woshigou") DbgPrintEx(77, 0, "[+]woshigou\r\n");
+
+	//DbgPrintEx(77, 0, "s6.substr(2,4)=%s\r\n", s6.substr(s6.find("shi"), 4).c_str());
 	/*drv->DriverUnload = unload;
 	auto a = krl_std::vector<_test_t>(76,{55,66,77,"hahah1"});
 

@@ -5,28 +5,28 @@
 
 namespace krl_std {
 
-	class string {
+	class wstring {
 	public:
 		//ctor
-		string() {
+		wstring() {
 
 			_Str = _Data_allocator.allocate(1);
 			_Str[0] = 0;
 			_Len = 0;
 		}
 
-		string(const string& str) {
+		wstring(const wstring& str) {
 
 
 			//深浅拷贝问题
 			auto _len = str.length();
-			//size=length+1(char)
-			auto new_p = _Data_allocator.allocate(_len+1);
+			
+			auto new_p = _Data_allocator.allocate(_len + 1);
 
 			//拷贝
 			__try {
 
-				memcpy(new_p, str.c_str(), _len + 1);
+				memcpy(new_p, str.c_str(), (_len + 1)*2);
 				_Str = new_p;
 				this->_Len = _len;
 			}
@@ -39,14 +39,14 @@ namespace krl_std {
 
 			}
 		}
-	
-		string(const char* s) {
+
+		wstring(const wchar_t* s) {
 
 			__try {
 
-				auto _len = strlen(s);
-				auto ptr = _Data_allocator.allocate(_len+1);
-				memcpy(ptr, s, _len + 1);
+				auto _len = wcslen(s);
+				auto ptr = _Data_allocator.allocate(_len + 1);
+				memcpy(ptr, s, (_len + 1)*2);
 				this->_Str = ptr;
 				this->_Len = _len;
 
@@ -61,13 +61,12 @@ namespace krl_std {
 			}
 		}
 
-		string(size_t n, char c) {
+		wstring(size_t n, wchar_t c) {
 
 			__try {
 
 				auto ptr = _Data_allocator.allocate(n + 1);
-
-				memset(ptr, c, n);
+				for (auto i = 0ull; i < n; i++) ptr[i] = c;
 				ptr[n] = 0;
 				this->_Str = ptr;
 				this->_Len = n;
@@ -82,16 +81,16 @@ namespace krl_std {
 
 			}
 		}
-		
+
 		//dtor
-		~string() {
+		~wstring() {
 
 			this->_Data_allocator.deallocate(_Str);
 		}
 
 
 		//重载运算符
-		auto operator==(string& str)->bool {
+		auto operator==(wstring& str)->bool {
 
 			auto _len = str.length();
 
@@ -105,8 +104,8 @@ namespace krl_std {
 			return true;
 		}
 
-		auto operator==(const char* s)->bool {
-			auto _len = strlen(s);
+		auto operator==(const wchar_t* s)->bool {
+			auto _len = wcslen(s);
 
 			if (_len != this->_Len) return false;
 
@@ -120,8 +119,8 @@ namespace krl_std {
 
 		}
 
-		auto operator!=(const char* s)->bool {
-			auto _len = strlen(s);
+		auto operator!=(const wchar_t* s)->bool {
+			auto _len = wcslen(s);
 
 			if (_len != this->_Len) return true;
 
@@ -134,7 +133,7 @@ namespace krl_std {
 
 		}
 
-		auto operator!=(string str)->bool {
+		auto operator!=(wstring str)->bool {
 
 			auto _len = str.length();
 
@@ -148,8 +147,8 @@ namespace krl_std {
 			return false;
 
 		}
-		auto operator+(const string& str) ->string{
-			string s_tmp;
+		auto operator+(const wstring& str) ->wstring {
+			wstring s_tmp;
 			auto _len = str.length();
 
 			auto new_len = _len + _Len;
@@ -157,8 +156,8 @@ namespace krl_std {
 
 			__try {
 
-				strcpy(new_p, _Str);
-				strcat(new_p, str.c_str());
+				wcscpy(new_p, _Str);
+				wcscat(new_p, str.c_str());
 			}
 			__except (1) {
 
@@ -176,7 +175,7 @@ namespace krl_std {
 		}
 
 
-		auto operator+=(const string& str)->string& {
+		auto operator+=(const wstring& str)->wstring& {
 			auto _len = str.length();
 
 			auto new_len = _len + _Len;
@@ -185,8 +184,8 @@ namespace krl_std {
 
 			__try {
 
-				strcpy(new_p, _Str);
-				strcat(new_p, str.c_str());
+				wcscpy(new_p, _Str);
+				wcscat(new_p, str.c_str());
 
 				auto tmp_p = _Str;
 				_Data_allocator.deallocate(tmp_p);
@@ -199,11 +198,11 @@ namespace krl_std {
 				__debugbreak();
 #endif // DEBUG
 				DBG_PRINT("copy err!\r\n", true);
-				
+
 			}
 			return *this;
 		}
-		auto operator[](int index)->char& {
+		auto operator[](int index)->wchar_t& {
 
 			if (index >= length()) {
 #ifdef DBG
@@ -211,14 +210,14 @@ namespace krl_std {
 #endif // DEBUG
 				DBG_PRINT("index err!\r\n", true);
 
-				return _Str[length()-1];
+				return _Str[length() - 1];
 			}
 
 			return _Str[index];
 		}
 
 		//拷贝复制
-		auto operator =(const string& str)->void {
+		auto operator =(const wstring& str)->void {
 			if (&str == this) return;
 
 			//深浅拷贝问题
@@ -229,7 +228,7 @@ namespace krl_std {
 			//拷贝
 			__try {
 
-				memcpy(new_p, str.c_str(), _len + 1);
+				memcpy(new_p, str.c_str(), (_len + 1)*2);
 				//释放原有的
 				_Data_allocator.deallocate(_Str);
 				_Str = new_p;
@@ -246,23 +245,23 @@ namespace krl_std {
 
 		}
 		//成员函数
-		auto length()const ->  size_t  {return _Len;}
+		auto length()const ->  size_t { return _Len; }
 
-		auto c_str() const -> char*  { return _Str; }
+		auto c_str() const -> wchar_t* { return _Str; }
 
-		auto find(const char* str)->size_t {
-			
-			size_t sub_len = strlen(str);
+		auto find(const wchar_t* str) -> size_t {
+
+			size_t sub_len = wcslen(str);
 			if (sub_len == _Len) {
 				//特殊情况判断
-				if (*this ==str) return 0;
+				if (*this == str) return 0;
 				else return _Len + 1;//end of str
 			}
 			if (sub_len > _Len) return _Len + 1;
 
 			for (auto i = 0ull; i < _Len; i++) {
 
-				if (RtlCompareMemory(_Str + i, str, sub_len) == sub_len) {
+				if (RtlCompareMemory(_Str + i, str, sub_len*2) == sub_len*2) {
 
 					return i;
 				}
@@ -272,7 +271,7 @@ namespace krl_std {
 
 		}
 
-		auto find(string& str) -> size_t {
+		auto find(wstring& str) -> size_t {
 
 			auto sub_str = str._Str;
 			auto sub_len = str._Len;
@@ -285,7 +284,7 @@ namespace krl_std {
 
 			for (auto i = 0ull; i < _Len; i++) {
 
-				if (RtlCompareMemory(_Str+i, sub_str, sub_len) == sub_len) {
+				if (RtlCompareMemory(_Str + i, sub_str, sub_len*2) == sub_len*2) {
 
 					return i;
 				}
@@ -295,17 +294,17 @@ namespace krl_std {
 
 		}
 
-		auto substr(size_t pos1,size_t pos2) ->string{
-			
-			string tmp;
+		auto substr(size_t pos1, size_t pos2) -> wstring {
+
+			wstring tmp;
 			if ((pos1 > pos2) || (pos2 >= _Len)) return tmp;
-		
+
 			auto sub_len = pos2 - pos1 + 1;
 
-			auto sub_p = _Data_allocator.allocate(sub_len+1);
+			auto sub_p = _Data_allocator.allocate(sub_len + 1);
 			_Data_allocator.deallocate(tmp.c_str());
 			__try {
-				memcpy(sub_p, _Str + pos1, sub_len);
+				memcpy(sub_p, _Str + pos1, sub_len*2);
 
 				tmp._Str = sub_p;
 				tmp._Len = sub_len;
@@ -324,10 +323,10 @@ namespace krl_std {
 		}
 
 	private:
-		char* _Str;
+		wchar_t* _Str;
 		size_t _Len;
 		//分配器
-		allocator<char> _Data_allocator;
+		allocator<wchar_t> _Data_allocator;
 	};
 
 
